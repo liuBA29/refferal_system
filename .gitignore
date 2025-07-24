@@ -1,0 +1,20 @@
+venv/
+# Python
+*.pyc
+*.pyo
+__pycache__/
+*.sqlite3
+ .idea/
+ my_site/
+
+# Virtual Environment
+venv/
+.env
+env
+
+# Django Static and Media Files
+
+.media/
+
+# Logs
+*.log
