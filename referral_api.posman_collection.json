@@ -1,0 +1,9 @@
+{
+    "detail": "Login successful",
+    "user": {
+        "phone_number": "+375291234567",
+        "invite_code": "7TDZVS",
+        "activated_code": null,
+        "invited_users": []
+    }
+}

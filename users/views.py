@@ -1,82 +1,83 @@
 #users/views.py
-
-from django.shortcuts import render
-
-import random
-import time
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import User, PhoneCode
-from .serializers import PhoneSerializer, CodeVerifySerializer, UserProfileSerializer, RegisterSerializer
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny  # добавим
+from .models import UserProfile
+from .tokens import send_code, verify_code
+from .serializers import RequestCodeSerializer, VerifyCodeSerializer, UserProfileSerializer
 
 
+class UserProfileView(APIView):
+    permission_classes = [AllowAny]
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def profile_view(request):
-    user = request.user
-    serializer = UserProfileSerializer(user)
-    return Response(serializer.data)
-
-
-
-class SendPhoneView(APIView):
-    def post(self, request):
-        serializer = PhoneSerializer(data=request.data)
-        if serializer.is_valid():
-            phone = serializer.validated_data['phone']
-            code = str(random.randint(1000, 9999))
-
-            user, created = User.objects.get_or_create(phone=phone)
-            user.auth_code = code
-            user.save()
-
-            # 💥 Создаём или обновляем запись в PhoneCode
-            PhoneCode.objects.update_or_create(
-                phone=phone,
-                defaults={'code': code}
+    def get(self, request):
+        phone_number = request.headers.get("X-Phone-Number")
+        if not phone_number:
+            return Response(
+                {"detail": "Phone number header missing."},
+                status=status.HTTP_400_BAD_REQUEST
             )
 
+        try:
+            profile = UserProfile.objects.get(phone_number=phone_number)
+        except UserProfile.DoesNotExist:
+            return Response(
+                {"detail": "User not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
 
-            # Имитация задержки (будто отправка СМС)
-            time.sleep(1.5)
-            print(f"🐰 Код авторизации для {phone}: {code}")
+        serializer = UserProfileSerializer(profile)
+        return Response(serializer.data)
+    
 
-            return Response({"message": "Код отправлен!"})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ActivateInviteCodeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        code_to_activate = request.data.get('invite_code')
+
+        if not code_to_activate:
+            return Response({"detail": "Invite code is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Проверяем, активировал ли уже код
+        if user.invited_by is not None:
+            return Response({"detail": "Invite code already activated"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            inviter = UserProfile.objects.get(invite_code=code_to_activate)
+        except UserProfile.DoesNotExist:
+            return Response({"detail": "Invite code does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Записываем, кто пригласил пользователя
+        user.invited_by = inviter
+        user.save()
+
+        return Response({"detail": "Invite code activated successfully"})
+
+
+
+class RequestCodeView(APIView):
+    def post(self, request):
+        serializer = RequestCodeSerializer(data=request.data)
+        if serializer.is_valid():
+            phone = serializer.validated_data['phone_number']
+            send_code(phone)
+            return Response({'detail': 'Verification code sent (simulated).'}, status=200)
+        return Response(serializer.errors, status=400)
 
 class VerifyCodeView(APIView):
     def post(self, request):
-        serializer = CodeVerifySerializer(data=request.data)
+        serializer = VerifyCodeSerializer(data=request.data)
         if serializer.is_valid():
-            phone = serializer.validated_data['phone']
+            phone = serializer.validated_data['phone_number']
             code = serializer.validated_data['code']
 
-            try:
-                user = User.objects.get(phone=phone)
-                if user.auth_code == code:
-                    user.is_verified = True
-                    user.auth_code = None
-                    user.save()
-                    return Response({"message": "Проверка прошла успешно", "invite_code": user.invite_code})
-                else:
-                    return Response({"error": "Неверный код"}, status=400)
-            except User.DoesNotExist:
-                return Response({"error": "Пользователь не найден"}, status=404)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            if not verify_code(phone, code):
+                return Response({'detail': 'Invalid code'}, status=400)
 
-
-class RegisterView(APIView):
-    def post(self, request):
-        serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({
-                "message": "Пользователь зарегистрирован",
-                "token": token.key
-            })
+            user, created = UserProfile.objects.get_or_create(phone_number=phone)
+            return Response({'detail': 'Login successful', 'user': UserProfileSerializer(user).data})
         return Response(serializer.errors, status=400)
