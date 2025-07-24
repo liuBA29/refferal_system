@@ -8,6 +8,14 @@ from .models import UserProfile
 from .tokens import send_code, verify_code
 from .serializers import RequestCodeSerializer, VerifyCodeSerializer, UserProfileSerializer
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+
+
+def profile_page(request):
+    context = "ho"
+    return render(request, "users/profile.html", {context: context})
+
 
 class UserProfileView(APIView):
     permission_classes = [AllowAny]

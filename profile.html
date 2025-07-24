@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль</title>
+</head>
+<body>
+    <h1>Привет, {{ phone_number }}</h1>
+    <p>Твой инвайт-код: <strong>{{ invite_code }}</strong></p>
+
+    {% if activated_code %}
+        <p>Ты уже активировал код: <strong>{{ activated_code }}</strong></p>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <label for="code">Ввести чужой инвайт-код:</label>
+            <input type="text" name="code" id="code">
+            <button type="submit">Активировать</button>
+        </form>
+    {% endif %}
+
+    <h2>Твои приглашённые:</h2>
+    <ul>
+        {% for user in invited_users %}
+            <li>{{ user }}</li>
+        {% empty %}
+            <li>Пока никого 😔</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
+
+
+</body>
+</html>
