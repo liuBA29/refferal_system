@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход по телефону</title>
+</head>
+<body>
+    <h1>Авторизация по номеру телефона</h1>
+
+    <form id="request-code-form">
+        <label for="phone_number">Введите номер телефона:</label><br>
+        <input type="text" id="phone_number" name="phone_number" required><br><br>
+        <button type="submit">Получить код</button>
+    </form>
+
+    <div id="message" style="color: green; margin-top: 10px;"></div>
+    <div id="error" style="color: red; margin-top: 10px;"></div>
+
+    <script>
+        document.getElementById('request-code-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const phone = document.getElementById('phone_number').value;
+
+            // Очистим сообщения
+            document.getElementById('message').textContent = '';
+            document.getElementById('error').textContent = '';
+
+            try {
+                const response = await fetch('/api/request-code/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ phone_number: phone })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('message').textContent = data.detail;
+                } else {
+                    const err = await response.json();
+                    document.getElementById('error').textContent = err.detail || 'Ошибка при запросе кода';
+                }
+            } catch (error) {
+                document.getElementById('error').textContent = 'Ошибка сети или сервера';
+            }
+        });
+    </script>
+</body>
+</html>

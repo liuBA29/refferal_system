@@ -15,6 +15,10 @@ from django.shortcuts import render, get_object_or_404
 from .models import UserProfile
 
 
+def home_page(request):
+    return render(request, "users/home.html")
+
+
 def profile_page(request):
     # Пока просто для примера возьмём первый профиль в базе
     user_profile = UserProfile.objects.first()
