@@ -5,6 +5,19 @@
     <title>Title</title>
 </head>
 <body>
-hihihi
+<h1>Профиль пользователя: {{ user_profile.phone_number }}</h1>
+<p>Пригласительный код: <strong>{{ user_profile.invite_code }}</strong></p>
+<p>Активирован приглашением: {{ user_profile.activated_invite }}</p>
+<p>Кто пригласил: {% if user_profile.invited_by %}{{ user_profile.invited_by.phone_number }}{% else %}— не указано {% endif %}</p>
+
+<h2>Пользователи, которые активировали ваш код:</h2>
+<ul>
+    {% for phone in invited_phones %}
+        <li>{{ phone }}</li>
+    {% empty %}
+        <li>Пока никто не активировал ваш код.</li>
+    {% endfor %}
+</ul>
+
 </body>
 </html>

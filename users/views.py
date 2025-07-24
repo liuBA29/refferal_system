@@ -11,10 +11,27 @@ from .serializers import RequestCodeSerializer, VerifyCodeSerializer, UserProfil
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
+from django.shortcuts import render, get_object_or_404
+from .models import UserProfile
+
 
 def profile_page(request):
-    context = "ho"
-    return render(request, "users/profile.html", {context: context})
+    # Пока просто для примера возьмём первый профиль в базе
+    user_profile = UserProfile.objects.first()
+
+    # Можно сделать проверку, если профиля нет
+    if not user_profile:
+        context = {"error": "Профиль пользователя не найден."}
+        return render(request, "users/profile.html", context)
+
+    # Получаем список телефонов приглашённых пользователей
+    invited_phones = user_profile.invited_users.values_list('phone_number', flat=True)
+
+    context = {
+        "user_profile": user_profile,
+        "invited_phones": invited_phones,
+    }
+    return render(request, "users/profile.html", context)
 
 
 class UserProfileView(APIView):
