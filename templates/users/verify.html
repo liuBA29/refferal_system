@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Подтверждение кода</title>
+</head>
+<body>
+    <h1>Введите код, отправленный на {{ phone }}</h1>
+
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li style="color: red;">{{ message }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <label for="code">Код:</label>
+        <input type="text" name="code" placeholder="1234" required>
+        <button type="submit">Подтвердить</button>
+    </form>
+</body>
+</html>

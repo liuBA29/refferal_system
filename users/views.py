@@ -7,16 +7,42 @@ from rest_framework.permissions import AllowAny  # добавим
 from .models import UserProfile
 from .tokens import send_code, verify_code
 from .serializers import RequestCodeSerializer, VerifyCodeSerializer, UserProfileSerializer
-
+from django.contrib import messages
+import time
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-
-from django.shortcuts import render, get_object_or_404
 from .models import UserProfile
 
 
 def home_page(request):
+    if request.method == "POST":
+        phone = request.POST.get("phone_number")
+        if phone:
+            send_code(phone)  # псевдо-отправка кода
+            request.session["auth_phone"] = phone
+            time.sleep(1.5)  # имитация задержки
+            return redirect("users:verify_code")
+        else:
+            messages.error(request, "Введите номер телефона.")
     return render(request, "users/home.html")
+
+
+def verify_code_page(request):
+    phone = request.session.get("auth_phone")
+    if not phone:
+        return redirect("home")
+
+    if request.method == "POST":
+        code = request.POST.get("code")
+        if verify_code(phone, code):
+            user, created = UserProfile.objects.get_or_create(phone_number=phone)
+            messages.success(request, "Успешный вход.")
+            return redirect("users:profile_page")
+        else:
+            messages.error(request, "Неверный код.")
+
+    return render(request, "users/verify.html", {"phone": phone})
+
 
 
 def profile_page(request):
