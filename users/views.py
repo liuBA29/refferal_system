@@ -46,15 +46,36 @@ def verify_code_page(request):
 
 
 def profile_page(request):
-    # Пока просто для примера возьмём первый профиль в базе
-    user_profile = UserProfile.objects.first()
+    phone = request.session.get("auth_phone")
+    if not phone:
+        return redirect("users:home")
 
-    # Можно сделать проверку, если профиля нет
+    user_profile = UserProfile.objects.filter(phone_number=phone).first()
+
     if not user_profile:
         context = {"error": "Профиль пользователя не найден."}
         return render(request, "users/profile.html", context)
 
-    # Получаем список телефонов приглашённых пользователей
+    # ✅ Обработка формы активации кода
+    if request.method == "POST":
+        invite_code = request.POST.get("invite_code")
+        if invite_code:
+            if user_profile.invited_by:
+                messages.error(request, "Инвайт-код уже был активирован.")
+            else:
+                try:
+                    inviter = UserProfile.objects.get(invite_code=invite_code)
+                    if inviter == user_profile:
+                        messages.error(request, "Нельзя ввести свой собственный код.")
+                    else:
+                        user_profile.invited_by = inviter
+                        user_profile.save()
+                        messages.success(request, "Инвайт-код успешно активирован.")
+                except UserProfile.DoesNotExist:
+                    messages.error(request, "Инвайт-код не найден.")
+        else:
+            messages.error(request, "Введите код.")
+
     invited_phones = user_profile.invited_users.values_list('phone_number', flat=True)
 
     context = {
@@ -62,6 +83,7 @@ def profile_page(request):
         "invited_phones": invited_phones,
     }
     return render(request, "users/profile.html", context)
+
 
 
 class UserProfileView(APIView):

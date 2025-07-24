@@ -1,23 +1,44 @@
+
+<!-- users/profile.html -->
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Профиль</title>
 </head>
 <body>
-<h1>Профиль пользователя: {{ user_profile.phone_number }}</h1>
-<p>Пригласительный код: <strong>{{ user_profile.invite_code }}</strong></p>
-<p>Активирован приглашением: {{ user_profile.activated_invite }}</p>
-<p>Кто пригласил: {% if user_profile.invited_by %}{{ user_profile.invited_by.phone_number }}{% else %}— не указано {% endif %}</p>
+    <h1>Добро пожаловать, {{ user_profile.phone_number }}</h1>
 
-<h2>Пользователи, которые активировали ваш код:</h2>
-<ul>
-    {% for phone in invited_phones %}
-        <li>{{ phone }}</li>
-    {% empty %}
-        <li>Пока никто не активировал ваш код.</li>
-    {% endfor %}
-</ul>
+    <p>Ваш инвайт-код: <strong>{{ user_profile.invite_code }}</strong></p>
 
+    {% if user_profile.invited_by %}
+        <p>Вы были приглашены пользователем с кодом: {{ user_profile.invited_by.invite_code }}</p>
+    {% else %}
+        <form method="post">
+            {% csrf_token %}
+            <label for="invite_code">Введите чужой инвайт-код:</label>
+            <input type="text" name="invite_code" required>
+            <button type="submit">Активировать</button>
+        </form>
+    {% endif %}
+
+    <h3>Вы пригласили:</h3>
+    <ul>
+        {% for phone in invited_phones %}
+            <li>{{ phone }}</li>
+        {% empty %}
+            <li>Пока никого не пригласили</li>
+        {% endfor %}
+    </ul>
+
+    {% if messages %}
+        <ul>
+        {% for message in messages %}
+            <li style="color: {% if message.tags == 'error' %}red{% else %}green{% endif %};">
+                {{ message }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
 </body>
 </html>

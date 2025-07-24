@@ -2,6 +2,9 @@
 
 import random
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 # временно храним коды в памяти
 verification_storage = {}
@@ -13,7 +16,7 @@ def send_code(phone_number):
     time.sleep(1.5)  # задержка имитации отправки
     code = generate_verification_code()
     verification_storage[phone_number] = code
-    print(f"[DEBUG] Code for {phone_number}: {code}")
+    logger.debug(f"[DEBUG] Code for {phone_number}: {code}")
     return code
 
 def verify_code(phone_number, code):
