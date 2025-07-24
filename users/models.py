@@ -1,3 +1,5 @@
+#users/models.py
+
 from django.db import models
 import random
 import string
@@ -22,3 +24,7 @@ class User(models.Model):
     def __str__(self):
         return self.phone
 
+class PhoneCode(models.Model):
+    phone = models.CharField(max_length=15, unique=True)
+    code = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
