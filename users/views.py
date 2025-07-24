@@ -30,33 +30,54 @@ class UserProfileView(APIView):
 
         serializer = UserProfileSerializer(profile)
         return Response(serializer.data)
-    
+
 
 class ActivateInviteCodeView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
-        user = request.user
+        phone_number = request.headers.get("X-Phone-Number")  # ✅ получаем номер
+
+        if not phone_number:
+            return Response(
+                {"detail": "Phone number header missing."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            user = UserProfile.objects.get(phone_number=phone_number)  # ✅ получаем user-профиль
+        except UserProfile.DoesNotExist:
+            return Response(
+                {"detail": "User not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
         code_to_activate = request.data.get('invite_code')
 
         if not code_to_activate:
-            return Response({"detail": "Invite code is required"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invite code is required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # Проверяем, активировал ли уже код
         if user.invited_by is not None:
-            return Response({"detail": "Invite code already activated"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invite code already activated"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             inviter = UserProfile.objects.get(invite_code=code_to_activate)
         except UserProfile.DoesNotExist:
-            return Response({"detail": "Invite code does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Invite code does not exist"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-        # Записываем, кто пригласил пользователя
         user.invited_by = inviter
         user.save()
 
         return Response({"detail": "Invite code activated successfully"})
-
 
 
 class RequestCodeView(APIView):
