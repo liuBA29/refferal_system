@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Вход по телефону</title>
-</head>
-<body>
+<!-- templates/users/home.html -->
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="form-box">
     <h1>Авторизация</h1>
 
     {% if messages %}
@@ -20,6 +19,8 @@
         <input type="text" name="phone_number" placeholder="+375291234567" required>
         <button type="submit">Отправить код</button>
     </form>
-</body>
-</html>
+</div>
 
+
+
+{% endblock %}

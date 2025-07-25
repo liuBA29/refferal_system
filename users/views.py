@@ -14,6 +14,8 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import UserProfile
 
 
+
+
 def home_page(request):
     if request.method == "POST":
         phone = request.POST.get("phone_number")
@@ -179,3 +181,7 @@ class VerifyCodeView(APIView):
             user, created = UserProfile.objects.get_or_create(phone_number=phone)
             return Response({'detail': 'Login successful', 'user': UserProfileSerializer(user).data})
         return Response(serializer.errors, status=400)
+
+
+
+

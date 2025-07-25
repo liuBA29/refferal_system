@@ -1,0 +1,17 @@
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Центровка по вертикали */
+}
+
+.form-box {
+    border: 1px solid #ccc;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #fff;
+    text-align: center;
+}

@@ -1,11 +1,7 @@
-<!-- users/verify.html -->
+{% extends 'base.html' %}
+{% block content %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Подтверждение кода</title>
-</head>
-<body>
+<div class="form-box">
     <h1>Введите код, отправленный на {{ phone }}</h1>
 
     {% if messages %}
@@ -22,5 +18,8 @@
         <input type="text" name="code" placeholder="1234" required>
         <button type="submit">Подтвердить</button>
     </form>
-</body>
-</html>
+</div>
+
+
+
+{% endblock %}

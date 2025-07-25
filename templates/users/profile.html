@@ -1,18 +1,16 @@
 
 <!-- users/profile.html -->
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Профиль</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="form-box">
     <h1>Добро пожаловать, {{ user_profile.phone_number }}</h1>
 
-    <p>Ваш инвайт-код: <strong>{{ user_profile.invite_code }}</strong></p>
+    <p><strong>Ваш инвайт-код:</strong> {{ user_profile.invite_code }}</p>
 
     {% if user_profile.invited_by %}
-        <p>Вы были приглашены пользователем с кодом: {{ user_profile.invited_by.invite_code }}</p>
+        <p>Вы были приглашены пользователем с кодом: <strong>{{ user_profile.invited_by.invite_code }}</strong></p>
     {% else %}
         <form method="post">
             {% csrf_token %}
@@ -40,5 +38,6 @@
         {% endfor %}
         </ul>
     {% endif %}
-</body>
-</html>
+</div>
+
+{% endblock %}
