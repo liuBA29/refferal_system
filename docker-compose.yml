@@ -23,5 +23,16 @@ services:
       - .env
     command: ["./wait-for-it.sh", "db:5432", "--", "gunicorn", "referral_system.wsgi:application", "--bind", "0.0.0.0:8000"]
 
+  nginx:
+    image: nginx:latest
+    ports:
+      - "77:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
+      - ./static:/app/static
+      - ./media:/app/media
+    depends_on:
+      - web
+
 volumes:
   postgres_data:
