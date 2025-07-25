@@ -19,11 +19,11 @@
 
 ## 🧱 Технологии
 
-- Python 3.11
+- Python 3.11+
 - Django 5.2
 - Django REST Framework
 - Docker, docker-compose
-- SQLite (по умолчанию)
+- PostgreSQL
 - Django Templates
 
 ---
@@ -33,7 +33,7 @@
 ### 🔧 Локально без Docker:
 
 ```bash
-git clone https://github.com/yourusername/refferal_system.git
+git clone https://github.com/liuBA29/refferal_system.git
 cd refferal_system
 python -m venv venv
 source venv/bin/activate   # для Windows: venv\Scripts\activate
@@ -41,19 +41,21 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 🐳 С Docker:
-bash
-Копировать
-Редактировать
-git clone https://github.com/yourusername/refferal_system.git
+
+git clone https://github.com/liuBA29/refferal_system.git
 cd refferal_system
-docker-compose up --build
+docker-compose up --build -d
+
+
+Функционал:
 🔐 Авторизация
 1. 📲 Запрос кода
 POST /users/api/request-code/
 
-json
-Копировать
-Редактировать
+
+# добавь что код приходит в командную строку 
+#если устанавливают без докера просто, если через докер, то надо вводить http://testsite.web.cloudcenter.ovh/
+
 {
   "phone_number": "+375291112233"
 }
@@ -122,6 +124,8 @@ http://localhost:8000/
 
 📦 Postman коллекция
 Файл postman_collection.json лежит в корне проекта — импортируйте его в Postman для тестирования всех эндпоинтов.
+# добавь что для тестирования с моего сайта : http://testsite.web.cloudcenter.ovh/
+
 
 ✅ Дополнительно
  Мини-интерфейс на Django Templates
