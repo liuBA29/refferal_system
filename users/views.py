@@ -26,7 +26,7 @@ def home_page(request):
             return redirect("users:verify_code")
         else:
             messages.error(request, "Введите номер телефона.")
-    return render(request, "users/home.html")
+    return render(request, "users/index.html")
 
 
 def verify_code_page(request):

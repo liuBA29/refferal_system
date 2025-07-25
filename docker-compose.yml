@@ -13,9 +13,11 @@ services:
 
   web:
     build: .
+    environment:
+      DJANGO_SETTINGS_MODULE: referral_system.settings
     volumes:
       - .:/app
-      - static_volume:/app/static
+      - static_volume:/app/staticfiles
       - media_volume:/app/media
     ports:
       - "8000:8000"
@@ -32,8 +34,8 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
-      - static_volume:/app/static
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles
       - media_volume:/app/media
     depends_on:
       - web
