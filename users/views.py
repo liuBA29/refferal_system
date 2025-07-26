@@ -13,6 +13,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserProfile
 
+from .tokens import all_codes
+
+
 
 
 
@@ -30,7 +33,11 @@ def home_page(request):
 
 
 def verify_code_page(request):
+
+
     phone = request.session.get("auth_phone")
+    code_show = all_codes.get(phone)
+
     if not phone:
         return redirect("home")
 
@@ -38,12 +45,13 @@ def verify_code_page(request):
         code = request.POST.get("code")
         if verify_code(phone, code):
             user, created = UserProfile.objects.get_or_create(phone_number=phone)
+
             messages.success(request, "Успешный вход.")
             return redirect("users:profile_page")
         else:
             messages.error(request, "Неверный код.")
 
-    return render(request, "users/verify.html", {"phone": phone})
+    return render(request, "users/verify.html", {"phone": phone, "code_show": code_show})
 
 
 

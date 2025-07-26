@@ -15,4 +15,5 @@ urlpatterns = [
 
     path('profile/', profile_page, name='profile_page'),
     path('profile/activate-invite/', ActivateInviteCodeView.as_view()),
+
 ]
